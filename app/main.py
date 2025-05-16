@@ -8,6 +8,7 @@ import logging
 from app.core.config import settings
 from app.api.v1.endpoints import auth
 from app.api.v1.endpoints.user import profile
+from app.api.v1.endpoints.lov import answer_type
 from app.db.session import get_db_pool
 from app.core.cache import redis
 from app.core.errors import error_handler
@@ -81,3 +82,4 @@ async def root():
 # Include routers
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(profile.router, prefix=f"{settings.API_V1_STR}/profile", tags=["profile"])
+app.include_router(answer_type.router, prefix=f"{settings.API_V1_STR}/answer-type", tags=["answer-type"])

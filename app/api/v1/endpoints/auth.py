@@ -16,8 +16,8 @@ async def login(
     # Get user from database
     async with db.cursor() as cursor:
         await cursor.execute(
-            "SELECT id, email, password FROM users WHERE email = %s AND valid = TRUE",
-            (form_data.username,)
+            "SELECT id, email, password FROM fos_user WHERE (email = %s OR username = %s) AND is_valid = TRUE AND enabled = TRUE",
+            (form_data.username, form_data.username)
         )
         user = await cursor.fetchone()
 

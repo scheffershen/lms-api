@@ -22,8 +22,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db = Depends(get
         
     async with db.cursor() as cursor:
         await cursor.execute(
-            "SELECT id, email, firstname, lastname, valid FROM users WHERE email = %s AND valid = TRUE",
-            (email,)
+            "SELECT id, email, firstname, lastname FROM fos_user WHERE (email = %s OR username = %s) AND is_valid = TRUE AND enabled = TRUE",
+            (email, email)
         )
         user = await cursor.fetchone()
         
@@ -35,7 +35,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db = Depends(get
         "email": user[1],
         "firstname": user[2],
         "lastname": user[3],
-        "valid": user[4]
+        "is_valid": user[4]
     }
 
 # For private endpoints

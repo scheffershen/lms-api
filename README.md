@@ -101,7 +101,15 @@ pip install -r requirements.txt
 4. Run the application:
 
 ```bash
-uvicorn app.main:app --reload
+# Activate virtual environment
+# On Windows:
+.venv\Scripts\activate
+
+# On Unix/MacOS:
+source .venv/bin/activate
+
+# Then run uvicorn
+uvicorn app.main:app --reload --port 8000
 ```
 
 ## Test
