@@ -9,7 +9,7 @@ class AnswerType(BaseModel):
     create_user: Optional[UserShort]
     update_user: Optional[UserShort]
     title: str
-    title_fr: Optional[str] = None
+    title_fr: Optional[str]
     description: Optional[str]
     keywords: Optional[str]
     sort: Optional[int]

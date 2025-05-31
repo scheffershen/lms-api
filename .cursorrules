@@ -1,0 +1,121 @@
+You are an expert in Python, FastAPI, and scalable API development.
+
+# Technical Writing Style
+- Write concise, technical responses with accurate Python examples
+- Use functional, declarative programming; avoid classes where possible
+- Prefer iteration and modularization over code duplication
+- Use descriptive variable names with auxiliary verbs (e.g., is_active, has_permission)
+- Use lowercase with underscores for directories and files (e.g., routers/user_routes.py)
+- Favor named exports for routes and utility functions
+- Use the Receive an Object, Return an Object (RORO) pattern
+- Use def for pure functions and async def for asynchronous operations
+- Use type hints for all function signatures
+- Prefer Pydantic models over raw dictionaries for input validation
+
+# Project Structure
+```
+app/
+├── api/                   # API layer - all HTTP endpoints
+│   └── v1/                # API version 1
+│       ├── deps/          # Dependencies (auth, db, etc.)
+│       └── endpoints/     # Route handlers
+│           ├── public/    # Public endpoints
+│           └── private/   # Private endpoints
+├── core/                  # Core application logic
+├── db/                    # Database layer
+├── models/                # Data models & schemas
+└── main.py               # Application entry point
+```
+
+# Code Organization
+- Keep related code together (e.g., all department-related code in one place)
+- Use clear, descriptive file names (e.g., `events.py` instead of `dept.py`)
+- Follow the established directory structure for new features
+- File structure: exported router, sub-routes, utilities, static content, types (models, schemas)
+
+# FastAPI Best Practices
+- Use functional components (plain functions) and Pydantic models for validation
+- Use declarative route definitions with clear return type annotations
+- Prefer lifespan context managers over @app.on_event decorators
+- Use middleware for logging, error monitoring, and performance optimization
+- Implement proper error handling with HTTPException
+- Use FastAPI's built-in OpenAPI and JSON Schema support
+- Use path operations decorators (@app.get, @app.post, etc.)
+- Rely on FastAPI's dependency injection system
+- Document all endpoints with docstrings
+- Include response models in OpenAPI schema
+- Provide examples in docstrings
+- Keep README.md updated with setup instructions
+
+# Database Operations
+- Use async database libraries (asyncpg, aiomysql)
+- Keep database queries in dedicated service files
+- Use connection pooling for better performance
+- Handle database errors gracefully
+- Use parameterized queries for security
+- Optimize queries for performance
+- Use column names instead of indices
+- Use explicit JOIN syntax with clear aliases
+- Use proper column aliasing for clarity
+
+# Error Handling
+- Use HTTPException for expected errors
+- Use middleware for unexpected errors
+- Log errors with proper context
+- Return meaningful error messages
+- Handle edge cases explicitly
+- Model errors as specific HTTP responses
+
+# Performance Optimization
+- Use async functions for I/O-bound tasks
+- Implement caching for static and frequently accessed data
+- Use lazy loading for large datasets
+- Optimize data serialization with Pydantic
+- Monitor response times
+- Use database connection pooling
+- Implement proper indexing strategies
+
+# Security
+- Never store sensitive data in code
+- Use environment variables for secrets
+- Validate all user input
+- Implement proper authentication checks
+- Use JWT token authentication where required
+- Use password hashing
+- Protect against SQL injection
+- Use database connection pooling
+
+# Testing
+- Write tests for all new features
+- Place tests in corresponding test directories
+- Use pytest fixtures for common setup
+- Include both unit and integration tests
+- Run tests with coverage reporting
+- Test error cases and edge conditions
+
+# Pydantic Usage
+- Use Pydantic models for request/response schemas
+- Define data types using Pydantic fields
+- Implement validation logic using Pydantic validators
+- Use BaseModel for consistent validation
+- Optimize serialization/deserialization
+- Use type annotations effectively
+
+# Code Style
+- Follow PEP 8 guidelines
+- Use type hints for all functions
+- Write clear, concise docstrings
+- Keep functions focused and small
+- Avoid unnecessary curly braces in conditionals
+- Use concise, one-line syntax for simple conditionals
+- Use proper naming conventions
+- Maintain consistent formatting
+
+# Version Control
+- Write meaningful commit messages
+- Keep commits focused and atomic
+- Follow branching strategy
+- Review code before committing
+- Update documentation with changes
+- Include tests with new features
+

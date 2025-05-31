@@ -10,22 +10,42 @@ router = APIRouter()
 
 @router.get("/answer-types", response_model=List[AnswerType])
 async def list_answer_types(db=Depends(get_db_connection)):
+    """
+    Retrieve all answer types with their French translations.
+    
+    Returns:
+        List[AnswerType]: List of all answer types with translations
+    """
     async with db.cursor() as cursor:
+        # First get all answer types
         await cursor.execute("""
             SELECT
                 at.id,
                 cu.id as create_user_id, cu.firstname as create_user_firstname, cu.lastname as create_user_lastname,
                 uu.id as update_user_id, uu.firstname as update_user_firstname, uu.lastname as update_user_lastname,
-                at.title, et.content as title_fr, at.description, at.keywords, at.sort, at.revision, at.create_date, at.update_date, at.is_valid, at.conditional
+                at.title, at.description, at.keywords, at.sort, at.revision, at.create_date, at.update_date, at.is_valid, at.conditional
             FROM answer_type at
             LEFT JOIN fos_user cu ON at.create_user_id = cu.id
             LEFT JOIN fos_user uu ON at.update_user_id = uu.id
-            LEFT JOIN ext_translations et ON et.object_class = 'App\\Entity\\LovManagement\\AnswerType' 
-                AND et.foreign_key = at.id 
-                AND et.field = 'title'
-                AND et.locale = 'fr'
         """)
         rows = await cursor.fetchall()
+        
+        # Get French translations separately
+        if rows:
+            answer_type_ids = [str(row[0]) for row in rows]
+            placeholders = ','.join(['%s'] * len(answer_type_ids))
+            await cursor.execute(f"""
+                SELECT foreign_key, content 
+                FROM ext_translations 
+                WHERE object_class LIKE %s
+                AND field = %s
+                AND locale = %s
+                AND foreign_key IN ({placeholders})
+            """, ('%AnswerType%', 'title', 'fr', *answer_type_ids))
+            translations = {str(row[0]): row[1] for row in await cursor.fetchall()}
+        else:
+            translations = {}
+    
     return [
         AnswerType(
             id=row[0],
@@ -36,40 +56,60 @@ async def list_answer_types(db=Depends(get_db_connection)):
                 user_id=row[4], firstname=row[5], lastname=row[6]
             ) if row[4] else None,
             title=row[7],
-            title_fr=row[8],
-            description=row[9],
-            keywords=row[10],
-            sort=row[11],
-            revision=row[12],
-            create_date=row[13],
-            update_date=row[14],
-            is_valid=bool(row[15]),
-            conditional=row[16]
+            title_fr=translations.get(str(row[0])),
+            description=row[8],
+            keywords=row[9],
+            sort=row[10],
+            revision=row[11],
+            create_date=row[12],
+            update_date=row[13],
+            is_valid=bool(row[14]),
+            conditional=row[15]
         )
         for row in rows
     ]
 
 @router.get("/answer-types/{answer_type_id}", response_model=AnswerType)
 async def get_answer_type(answer_type_id: int, db=Depends(get_db_connection)):
+    """
+    Retrieve a specific answer type with its French translation.
+    
+    Args:
+        answer_type_id (int): The ID of the answer type to retrieve
+        
+    Returns:
+        AnswerType: The answer type with its French translation
+    """
     async with db.cursor() as cursor:
+        # First get the answer type
         await cursor.execute("""
             SELECT
                 at.id,
                 cu.id as create_user_id, cu.firstname as create_user_firstname, cu.lastname as create_user_lastname,
                 uu.id as update_user_id, uu.firstname as update_user_firstname, uu.lastname as update_user_lastname,
-                at.title, et.content as title_fr, at.description, at.keywords, at.sort, at.revision, at.create_date, at.update_date, at.is_valid, at.conditional
+                at.title, at.description, at.keywords, at.sort, at.revision, at.create_date, at.update_date, at.is_valid, at.conditional
             FROM answer_type at
             LEFT JOIN fos_user cu ON at.create_user_id = cu.id
             LEFT JOIN fos_user uu ON at.update_user_id = uu.id
-            LEFT JOIN ext_translations et ON et.object_class = 'App\\Entity\\LovManagement\\AnswerType' 
-                AND et.foreign_key = at.id 
-                AND et.field = 'title'
-                AND et.locale = 'fr'
             WHERE at.id = %s
         """, (answer_type_id,))
         row = await cursor.fetchone()
-    if not row:
-        raise HTTPException(status_code=404, detail="AnswerType not found")
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="AnswerType not found")
+        
+        # Get French translation separately
+        await cursor.execute("""
+            SELECT content 
+            FROM ext_translations 
+            WHERE object_class LIKE %s
+            AND field = %s
+            AND locale = %s
+            AND foreign_key = %s
+        """, ('%AnswerType%', 'title', 'fr', str(answer_type_id)))
+        translation_row = await cursor.fetchone()
+        title_fr = translation_row[0] if translation_row else None
+        
     return AnswerType(
         id=row[0],
         create_user=UserShort(
@@ -79,15 +119,15 @@ async def get_answer_type(answer_type_id: int, db=Depends(get_db_connection)):
             user_id=row[4], firstname=row[5], lastname=row[6]
         ) if row[4] else None,
         title=row[7],
-        title_fr=row[8],
-        description=row[9],
-        keywords=row[10],
-        sort=row[11],
-        revision=row[12],
-        create_date=row[13],
-        update_date=row[14],
-        is_valid=bool(row[15]),
-        conditional=row[16]
+        title_fr=title_fr,
+        description=row[8],
+        keywords=row[9],
+        sort=row[10],
+        revision=row[11],
+        create_date=row[12],
+        update_date=row[13],
+        is_valid=bool(row[14]),
+        conditional=row[15]
     )
 
 @router.post("/answer-types", response_model=AnswerType, status_code=status.HTTP_201_CREATED)
@@ -96,6 +136,15 @@ async def create_answer_type(
     db=Depends(get_db_connection),
     current_user=Depends(get_current_user) 
 ):
+    """
+    Create a new answer type.
+    
+    Args:
+        answer_type (AnswerTypeCreate): The answer type to create
+        
+    Returns:
+        AnswerType: The created answer type
+    """
     now = datetime.utcnow()
     conditional = slugify(answer_type.title)
     async with db.cursor() as cursor:
@@ -164,6 +213,16 @@ async def update_answer_type(
     db=Depends(get_db_connection),
     current_user=Depends(get_current_user)
 ):
+    """
+    Update an existing answer type.
+    
+    Args:
+        answer_type_id (int): The ID of the answer type to update
+        answer_type (AnswerTypeCreate): The updated answer type data
+        
+    Returns:
+        AnswerType: The updated answer type
+    """
     now = datetime.utcnow()
     async with db.cursor() as cursor:
         # Get original create_user_id and revision for response
@@ -223,12 +282,12 @@ async def update_answer_type(
         await cursor.execute(
             """
             SELECT content FROM ext_translations 
-            WHERE object_class = 'App\\Entity\\LovManagement\\AnswerType'
+            WHERE object_class LIKE %s
             AND foreign_key = %s
-            AND field = 'title'
-            AND locale = 'fr'
+            AND field = %s
+            AND locale = %s
             """,
-            (str(answer_type_id),)
+            ('%AnswerType%', str(answer_type_id), 'title', 'fr')
         )
         title_fr_row = await cursor.fetchone()
         title_fr = title_fr_row[0] if title_fr_row else None
@@ -257,7 +316,17 @@ async def update_answer_type(
 
 @router.post("/answer-types/{answer_type_id}/disable", status_code=status.HTTP_204_NO_CONTENT)
 async def disable_answer_type(answer_type_id: int, db=Depends(get_db_connection), current_user=Depends(get_current_user)):
+    """
+    Disable an existing answer type.
+    
+    Args:
+        answer_type_id (int): The ID of the answer type to disable
+        
+    Returns:
+        None
+    """
     now = datetime.utcnow()
+
     async with db.cursor() as cursor:
         await cursor.execute(
             "UPDATE answer_type SET is_valid = FALSE, update_user_id = %s, update_date = %s WHERE id = %s AND is_valid = TRUE",
@@ -270,6 +339,15 @@ async def disable_answer_type(answer_type_id: int, db=Depends(get_db_connection)
 
 @router.post("/answer-types/{answer_type_id}/enable", status_code=status.HTTP_204_NO_CONTENT)
 async def enable_answer_type(answer_type_id: int, db=Depends(get_db_connection), current_user=Depends(get_current_user)):
+    """
+    Enable an existing answer type.
+    
+    Args:
+        answer_type_id (int): The ID of the answer type to enable
+        
+    Returns:
+        None
+    """
     now = datetime.utcnow()
     async with db.cursor() as cursor:
         await cursor.execute(

@@ -1,6 +1,6 @@
 # LMS V3 API
 
-A FastAPI-based REST API for the LMS V3 platform.
+A FastAPI-based REST API for the LMS V3 platform with integrated MCP (Model Context Protocol) support.
 
 ## Project Structure
 
@@ -24,8 +24,10 @@ app/
 │   └── session.py         # Database connection & session management
 ├── models/                # Data models & schemas
 │   └── models.py          # Pydantic models for request/response
+├── mcp_server.py          # MCP server for LLM integration
 └── main.py                # Application entry point
 
+run_mcp.py                 # MCP server startup script
 tests/                     # Test suite
 ├── conftest.py            # pytest fixtures & configuration
 ├── api/                   # API tests
@@ -62,6 +64,12 @@ tests/                     # Test suite
 - Pydantic models for request/response validation
 - Data transfer objects (DTOs)
 - Shared data structures
+
+### `/app/mcp_server.py`
+- FastMCP server implementation
+- Exposes API functionality as MCP tools for LLMs
+- Provides resources and prompts for AI interactions
+- Supports multiple transport protocols (STDIO, SSE)
 
 ### `/tests`
 - Comprehensive test suite
@@ -110,12 +118,6 @@ source .venv/bin/activate
 
 # Then run uvicorn
 uvicorn app.main:app --reload --port 8000
-```
-
-## Test
-
-```bash
-pytest app/tests/api/v1/test_auth.py -v
 ```
 
 ## API Documentation

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "lms-api": {
+      "command": ".venv/Scripts/python.exe",
+      "args": ["run_mcp.py"],
+      "cwd": "C:\\full\\path\\to\\bonus\\api",
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_USER": "lms",
+        "MYSQL_DATABASE": "lms",
+        "MYSQL_PASSWORD": "password",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379"
+      }
+    }
+  }
+} 
