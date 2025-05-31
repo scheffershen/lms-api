@@ -30,3 +30,5 @@ class User(BaseModel):
     hierarchy_level: int = 0
     is_valid: bool = True
     last_change_password: Optional[datetime] = None
+    laboratory_id: Optional[int] = None
+    ldap_server_id: Optional[int] = None

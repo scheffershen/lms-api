@@ -14,13 +14,13 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # Database settings
-    MYSQL_HOST: str = os.getenv('MYSQL_HOST', 'localhost')
+    MYSQL_HOST: str = "127.0.0.1" #os.getenv('MYSQL_HOST', 'localhost')
     MYSQL_USER: str = os.getenv('MYSQL_USER', 'root')
     MYSQL_PASSWORD: str = os.getenv('MYSQL_ROOT_PASSWORD')
-    MYSQL_DATABASE: str = os.getenv('MYSQL_DATABASE', 'medflixs')
+    MYSQL_DATABASE: str = "lms_umg" #os.getenv('MYSQL_DATABASE', 'medflixs')
     
     # Redis settings
-    REDIS_HOST: str = os.getenv('REDIS_HOST', 'localhost')
+    REDIS_HOST: str = "127.0.0.1" #os.getenv('REDIS_HOST', 'localhost')
     REDIS_PORT: int = int(os.getenv('REDIS_PORT', 6379))
     
     # Admin credentials

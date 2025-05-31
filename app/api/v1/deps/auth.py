@@ -34,8 +34,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db = Depends(get
         "id": user[0],
         "email": user[1],
         "firstname": user[2],
-        "lastname": user[3],
-        "is_valid": user[4]
+        "lastname": user[3]
     }
 
 # For private endpoints

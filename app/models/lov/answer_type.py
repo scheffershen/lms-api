@@ -1,12 +1,15 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from slugify import slugify  # pip install python-slugify
+from app.models.shared import UserShort
 
 class AnswerType(BaseModel):
     id: int
-    create_user_id: Optional[int]
-    update_user_id: Optional[int]
+    create_user: Optional[UserShort]
+    update_user: Optional[UserShort]
     title: str
+    title_fr: Optional[str] = None
     description: Optional[str]
     keywords: Optional[str]
     sort: Optional[int]
@@ -15,3 +18,10 @@ class AnswerType(BaseModel):
     update_date: Optional[datetime]
     is_valid: bool
     conditional: Optional[str]
+
+class AnswerTypeCreate(BaseModel):
+    title: str
+    title_fr: Optional[str] = None
+    description: Optional[str] = None
+    keywords: Optional[str] = None
+    sort: Optional[int] = None
